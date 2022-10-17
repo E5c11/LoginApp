@@ -10,6 +10,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import com.google.android.material.snackbar.Snackbar
 import com.test.loginapp.R
 import com.test.loginapp.databinding.FragmentLoginBinding
+import com.test.loginapp.util.LetterWatcher
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -25,6 +26,7 @@ class Login : Fragment(R.layout.fragment_login) {
 
         observeStates()
         clickEvents()
+        textWatchers()
     }
 
     private fun clickEvents() = binding.apply {
@@ -38,8 +40,10 @@ class Login : Fragment(R.layout.fragment_login) {
                     launch {
                         loginState.collect {
                             progress.visibility = if (it.loading) View.VISIBLE else View.GONE
-                            if (it.loginMessage.isNotEmpty()) Snackbar.make(root, it.loginMessage, Snackbar.LENGTH_SHORT).show()
-                            if (it.error.isNotEmpty()) Snackbar.make(root, it.error, Snackbar.LENGTH_SHORT).show()
+                            if (it.loginMessage.isNotEmpty())
+                                Snackbar.make(root, it.loginMessage, Snackbar.LENGTH_SHORT).show()
+                            if (it.error.isNotEmpty())
+                                Snackbar.make(root, it.error, Snackbar.LENGTH_SHORT).show()
                         }
                     }
                     launch {
@@ -51,6 +55,19 @@ class Login : Fragment(R.layout.fragment_login) {
                 }
             }
         }
+    }
+
+    private fun textWatchers() = binding.apply {
+        emailInput.addTextChangedListener(object : LetterWatcher() {
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                viewModel.checkEmail(s.toString())
+            }
+        })
+        passInput.addTextChangedListener(object : LetterWatcher() {
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                viewModel.checkPassword(s.toString())
+            }
+        })
     }
 
 }

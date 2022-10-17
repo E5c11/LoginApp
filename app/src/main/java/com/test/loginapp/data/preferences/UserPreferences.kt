@@ -14,7 +14,6 @@ import javax.inject.Singleton
 const val GUEST_EMAIL = "guest@email.com"
 
 data class LoginDetails(val email: String, val password: String, val uid: String)
-data class UserDetails(val name: String, val surname: String, val phone: String, val latitude: Double, val longitude: Double)
 
 private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "user_details")
 

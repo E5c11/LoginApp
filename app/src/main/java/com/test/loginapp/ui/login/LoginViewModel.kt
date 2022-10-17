@@ -5,6 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.test.loginapp.domain.usecases.LoginUsecase
 import com.test.loginapp.ui.login.state.DetailState
 import com.test.loginapp.ui.login.state.LoginState
+import com.test.loginapp.util.Constants.NUMBERS
+import com.test.loginapp.util.Constants.SPECIAL_CHARS
 import com.test.loginapp.util.Task
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,7 +27,7 @@ class LoginViewModel @Inject constructor(
     private var password = ""
 
     fun login() = viewModelScope.launch {
-        loginUsecase(email, password).onEach {
+        if (email.isNotEmpty() && password.isNotEmpty()) loginUsecase(email, password).onEach {
             when(it) {
                 is Task.Success -> {
                     _loginState.value = LoginState(
@@ -41,10 +43,16 @@ class LoginViewModel @Inject constructor(
                 }
             }
         }
+        else _detailState.value = DetailState(
+            emailValid = "Please enter a valid email",
+            passwordValid = "Please enter a valid password"
+        )
     }
 
+
+
     fun checkEmail(e: String) {
-        if (e.isNotEmpty()) {
+        if (e.isNotEmpty() && e.contains("@") && e.contains(".")) {
             _detailState.value = DetailState()
             email = e
         }
@@ -52,11 +60,11 @@ class LoginViewModel @Inject constructor(
     }
 
     fun checkPassword(p: String) {
-        if (p.isNotEmpty()) {
+        if (p.isNotEmpty() && p.contains(NUMBERS.toRegex()) && p.contains(SPECIAL_CHARS.toRegex())) {
             _detailState.value = DetailState()
             password = p
         }
-        else _detailState.value = DetailState(emailValid = "Please enter a valid password")
+        else _detailState.value = DetailState(passwordValid = "Please enter a valid password")
     }
 
 }
